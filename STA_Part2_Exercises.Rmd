@@ -1,0 +1,774 @@
+---
+title: 'STA 380, Part 2: Exercises'
+author: "Tanushree Devi Balaji, Spoorthi Anupuru"
+date: '2022-08-15'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Link to GitHub files - R Markdown & PDF outputs: 'https://github.com/tanushreebalaji/STA380_Part2_Exercises'
+
+## 1. Probability practice
+
+#### Part A. 
+###### Visitors to your website are asked to answer a single survey question before they get access to the content on the page. Among all of the users, there are two categories: Random Clicker (RC), and Truthful Clicker (TC). There are two possible answers to the survey: yes and no. Random clickers would click either one with equal probability. You are also giving the information that the expected fraction of random clickers is 0.3. After a trial period, you get the following survey results: 65% said Yes and 35% said No. What fraction of people who are truthful clickers answered yes? Hint: use the rule of total probability.
+
+##### This is a conditional probability question. The following data is available:
+
+#### DATA:
+###### RCs click yes/no with equal probability. Therefore, 
+
+###### P(yes/RC) = 0.5
+###### P(no/RC) = 0.5
+
+###### Also, 
+
+###### P(RC) = 0.3 
+###### This implies, P(TC) = 0.7 
+
+###### Further, 
+###### P(yes) = 0.65
+###### P(no) = 0.35
+
+##### P(yes/TC) = ?
+
+#### SOLUTION:
+###### By rules of conditional probability, 
+###### P(A/B) = P(A&B) / P(B) 
+
+###### This implies 
+###### P(yes & RC) = P(yes/RC) * P(RC) = 0.5*0.3 = 0.15 
+###### P(no & RC) = P(no/RC) * P(RC) = 0.5*0.3 = 0.15 
+
+###### By rules of total probability,
+
+###### P(yes & TC) = P(yes) - P(yes & RC) = 0.65 - 0.15 = 0.5
+###### P(no & TC) = P(no) - P(no & RC) = 0.35 - 0.15 = 0.2
+
+###### Hence, 
+
+##### P(yes/TC) = P(yes & TC)/P(TC) = 0.5/0.7 = 5/7 = 0.71428
+##### In other words, 71.43% of truthful clickers said yes
+
+#### Part B. 
+###### Imagine a medical test for a disease with the following two attributes:
+###### The sensitivity is about 0.993. That is, if someone has the disease, there is a probability of 0.993 that they will test positive.
+###### The specificity is about 0.9999. This means that if someone doesn't have the disease, there is probability of 0.9999 that they will test negative.
+###### In the general population, incidence of the disease is reasonably rare: about 0.0025% of all people have it (or 0.000025 as a decimal probability).
+###### Suppose someone tests positive. What is the probability that they have the disease?
+
+#### DATA:
+
+###### Sensitivity is 0.993 and hence, P(positive/disease) = 0.993
+###### Specificity is 0.9999 and hence, P(negative/no disease) = 0.9999
+
+###### Also, 
+
+###### P(disease) = 0.000025
+###### This implies, P(no disease) = 1 - 0.000025 = 0.999975
+
+##### P(disease/positive) = ?
+
+#### SOLUTION:
+###### By rules of conditional probability, 
+###### P(A/B) = P(A&B) / P(B) 
+
+###### This implies 
+###### P(positive & disease) = P(positive/disease) * P(disease) = 0.993  * 0.000025 = 0.000024825
+###### P(negative & no disease) = P(negative/no disease) * P(no disease) = 0.9999 * 0.999975 = 0.9998750025
+
+###### By rules of total probability,
+
+###### P(negative & disease) = P(disease) - P(positive & disease) = 0.000025 - 0.000024825 = 0.000000175
+###### P(negative) = P(negative & disease) + P(negative & no disease) = 0.000000175 + 0.9998750025 = 0.9998751775
+###### P(positive) = 1 - P(negative) = 1 - 0.9998751775 = 0.0001248225
+
+###### Hence, 
+
+##### P(disease/positive) = P(positive & disease)/P(positive) = 0.000024825/0.0001248225 = 0.198882413
+##### In other words, there is a probability of 19.89% that someone who tests positive actually has the disease
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+## 2. Wrangling the Billboard Top 100
+
+#### Part A.
+
+#### SOLUTION:
+###### 21st Century Music dominates All time Billboard Top 100!
+###### The table shows top 10 songs that spent the most weeks on the Billboard Top 100 chart. It would seem that most of these songs were released in either the 2000s or 10s and considered some of the best of the generation. While it's hard to say whether it's Billboard influencing the music scene or if it's the music scene dictating the charts, it's clear that they go hand in hand, more so now than before.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+library(tidyverse)
+library(mosaic)
+library(dplyr)
+billboard = read.csv("billboard.csv")
+billboard_agg = billboard %>% group_by(performer, song) %>% summarize(count = n())
+billboard_sort = head(arrange(billboard_agg, desc(count)),10)
+billboard_sort
+```
+#### Part B.
+
+#### SOLUTION:
+
+###### The volume of songs making Top 100 were high in the 60s and took a dip around the later part of the 20th century. It stayed low until the mid 2010s and took an upward turn after that. This makes sense considering the fact that artists back then produced and loaded their albums with tons of music. The music scene was in its nascent stages and there was a ton of experimentation that was happening be it with motown or soul or rock. However, following that, every decade started having its own unique sound - heavy metal in the 70s, indie rock in the 80s, pop and hip hop in the 90s and so on. What came with it were artists who dominated the respective decades and produced limited but evergreen music that stayed on the charts for longer, staying true to quality over quantity .However, the trend took a turn in the mid 2015s with the advent of apps such as Tik Tok being a major influence on the music scene. That would also explain why the charts changed so much - specially in 2020 or the year of the pandemic, when people were looking for new sources of entertainment with every waking moment.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+billboard_new = subset(billboard, year > 1958 & year < 2021)
+billboard_new_agg = billboard_new %>% group_by(year,song) %>% summarize(count_appearance = n())
+billboard_new_agg2 = billboard_new_agg %>% group_by(year) %>% summarize(count_songs = n())
+
+plot(billboard_new_agg2$year, billboard_new_agg2$count_songs, type='l',
+     col="orange", lwd=2, xlab="Year", ylab="Song Count", main="Variation in Musical Diversity over Time")
+```
+
+#### Part C.
+
+#### SOLUTION:
+
+###### These artists who have had more than 30 10-week wonders on Billboard Top 100 are mostly global artists who are beloved and have made a name for themselves in their respective genres. People like Elton John, Stevie Wonder, Neil Diamond etc. have had very long careers and it's fair to say that they remained consistent throughout. There are also a few different country artists on there like Brad Paisley, Keith Urban etc.and also pop soloists like Taylor Swift, Madonna & Michael Jackson. It's an eclectic group and serves testament to popularity not being driven by genres. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+billboard_10week = subset(billboard%>% group_by(performer,song) %>% summarize(count_appearance = n()), count_appearance >= 10)
+billboard_topartists =subset(subset(billboard_10week%>% group_by(performer) %>% summarize(count_songs = n()), count_songs >= 30))
+billboard_topartists_sort = arrange(billboard_topartists,desc(count_songs))
+ggplot(billboard_topartists_sort) + geom_col(aes(x=performer, y=count_songs)) + coord_flip() + ggtitle("Most Successful Artists on Billboard Top 100") + xlab("Performer") + ylab("Number of 10-week hits")
+```
+
+## 3. Visual story telling part 1: green buildings
+
+#### SOLUTION: 
+###### Although removing occupancy doesn't make a huge difference, let's stick with the analyst's assumption. In the "cleaned" data set, if you look at the average occupancy and size of green houses, they're very much in keeping with our desired design - around 250k in size and with about 90% expected occupancy. 
+
+```{r echo=FALSE}
+green = read.csv("greenbuildings.csv")
+green_highoccupancy = subset(green, leasing_rate > 10)
+green_highoccupancy %>% group_by(green_rating) %>% summarize(median_size = median(size), median_size, median_occupancy= median(leasing_rate), median_rent = median(Rent))
+```
+##### However, what sticks out from analysing these factors is that the sizes of the non - green houses are rather different from the sizes of the green houses we've been looking at.While the green houses have a median sizing of around 220k, for non-green it is around 130k
+
+```{r echo=FALSE}
+par(mfrow=c(1,2))
+plot(subset(green_highoccupancy,green_rating==1)$size, subset(green_highoccupancy,green_rating==1)$Rent, xlim=c(0,1000000), main = 'Size for Green Houses')
+plot(subset(green_highoccupancy,green_rating==0)$size, subset(green_highoccupancy,green_rating==0)$Rent, xlim=c(0,1000000), main = 'Size for Non-Green Houses')
+```
+
+##### To account for size, let's define a variable is_big - If size < median value of size, 0, else 1. To "adjust" for size, let's restrict out analysis to is_big = 1 & compare only those rents.
+###### Let's look at mean rent first. Immediately what sticks out is that the rent for the "big" houses are not much different based on whether they're green or not.Given that, this is our bucket of interest, we wouldn't be making too much of extra revenue. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+green_highoccupancy['is_big'] = ifelse(green_highoccupancy$size < median(green_highoccupancy$size), 0,1)
+green_highoccupancy %>% group_by(green_rating, is_big) %>% summarize(mean_rent = mean(Rent))
+
+```
+
+###### Maybe mean is not robust enough to outliers - let's consider median rent next. With this approach there is some change in the metrics again. While there is still a difference in rents, it's not as huge as was stated by the analyst. It's considerably smaller which means it would take longer to recuperate the money 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+green_highoccupancy %>% group_by(green_rating, is_big) %>% summarize(median_rent = median(Rent))
+
+```
+
+###### The other thing to note is that the analyst says they'll make additional "profit" based on greater rent prices. He doesn't take into account the premium in maintenance costs that comes with maintaining green properties along with other costs. Hence, this is not exactly "profit" but is additional revenue. Given that additional revenue does that necessarily represent additional cash flow, offsetting investment costs is a little trickier. To summarise, it will definitely take longer than 8 years to make that 5 million back.
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+## 4. Visual story telling part 2: Capital Metro data
+
+##### The data includes UT bus trip information for the months of Sep, Oct and Nov 2018. Let's begin by understanding what the traffic volumes look like in each of these months. 
+
+###### The maximum UT traffic on buses is in the Month of October (similar trends for boarding and alighting) - This is expected probably because midterms usually happen around October and students are utilizing buses to get to school & study groups
+
+###### The lowest traffic however is in Novemebr, mostly because it's holiday time and people head back home for vacation. 
+  
+
+```{r echo=FALSE, message=TRUE, warning=FALSE}
+
+library(ggplot2)
+
+rm(list = ls())
+df = read.csv("capmetro_UT.csv")
+df$month_id = ifelse(df$month=='Sep',9, ifelse(df$month=='Oct',10,11))
+df_sort = arrange(df, group_by = desc(month_id))
+df_sort$month <- factor(df_sort$month,levels = c("Sep", "Oct", "Nov"))
+df_agg = df_sort %>% group_by(month_id,month) %>% summarize(sum_boarding = sum(boarding))
+ggplot(data=df_agg, aes(x=df_agg$month, y=df_agg$sum_boarding, group=1)) +
+  geom_line()+
+  geom_point()
+```
+
+###### Looking at it at a slightly more granular level might help us understand when the buses are the busiest:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+df_agg2 = df_sort %>% group_by(month,weekend) %>% summarize(sum_boarding = sum(boarding))
+ggplot(df_agg2, aes(x = weekend, y = sum_boarding, fill = month)) + 
+  geom_bar(stat = "identity")+
+  scale_fill_brewer()
+```
+
+###### As expected, university traffic is lower during the weekends. But which days of the week are the busiest?
+
+###### Interestingly, in Oct, Mon-Wed are pretty busy, also causing the spike noticed earlier. This strengthens our theory around exams and study groups. 
+###### Also, interestingly, Nov sees the lowest traffic on Wednesdays - wonder why that is. Maybe looking at this data at an hourly level might help. 
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+df_filter = filter(df_sort, day_of_week %in% c("Mon", "Tue", "Wed", "Thu", "Fri"))
+df_filter$day_of_week = factor(df_filter$day_of_week, levels = c("Mon", "Tue", "Wed", "Thu", "Fri"))
+df_agg3 = df_filter %>% group_by(month,day_of_week) %>% summarize(sum_boarding = sum(boarding))
+ggplot(data=df_agg3, aes(x=day_of_week, y=sum_boarding, group=month))+
+       geom_line(aes(color=month))+
+       geom_point(size=1)+
+       labs(x="Day of Week",y="Boarding")
+```
+
+###### Interestingly, in Oct, MOn-Wed are pretty busy, also causing the spike noticed earlier. This strengthens our theory around exams and study groups. Also, interestingly, Nov sees the lowest traffic on Wednesdays - wonder why that is. Maybe looking at this data at an hourly level might help. 
+
+###### Looking at traffic on Wednesdays, you can see that the busiest hours are usually between 2 & 5 pm (ie) university hours Besides an overall dip in traffic, extreme drop during peak hours might indicate that a lot of the students had already headed back home. 
+##### With more granular data, it might be interesting to see if there were specific weeks in November when this happened. It might be an indication of the events surrounding it - ie, election week or holidays etc. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+df_filter2 = filter(df_filter, day_of_week %in% c("Wed"))
+df_agg4 = df_filter2 %>% group_by(month,hour_of_day) %>% summarize(sum_boarding = sum(boarding))
+ggplot(data=df_agg4, aes(x=hour_of_day, y=sum_boarding, group=month))+
+       geom_line(aes(color=month))+
+       geom_point(size=1)+
+       labs(x="Hour of Day",y="Boarding")
+```
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+## 5. Portfolio modeling
+
+#### SOLUTION:
+
+##### Part A.
+
+##### HIGH RISK PORTFOLIO:
+
+###### Description: It's a tech portfolio consisting of Meta, PayPal, Visa & Intuit stocks
+
+###### With this portfolio and equal allocation of costs, based on the simulations, an average cost profit of $1914.36 can be made. However, note that the standard deviation is $8396 (ie) it is highly volatile in nature. 
+
+###### The 5% value at risk for this stock is about -$11431 which means there is a possibility that 5% of the times you might lose over 10% of your original investment through this portfolio. However, the median profit/loss is around $1500 which means that at least 50% of the times, you would end up with a profit.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(mosaic)
+library(quantmod)
+library(foreach)
+
+mystocks = c("META", "PYPL", "V", "INTU")
+myprices = getSymbols(mystocks, from = "2017-01-01")
+chartSeries(META, type="line", subset="last 6 years")
+chartSeries(PYPL, type="line", subset="last 6 years")
+chartSeries(V, type="line", subset="last 6 years")
+chartSeries(INTU, type="line", subset="last 6 years")
+
+# Adjusting stocks 
+for(ticker in mystocks) {
+  expr = paste0(ticker, "a = adjustOHLC(", ticker, ")")
+  eval(parse(text=expr))
+}
+
+# Combine all the returns in a matrix
+all_returns = cbind(	ClCl(METAa),
+                     ClCl(PYPLa),
+                     ClCl(Va),
+                     ClCl(INTUa))
+all_returns = as.matrix(na.omit(all_returns))
+
+# Compute the returns from the closing prices
+pairs(all_returns)
+
+# Bootstrapping 5000 times with equal investments in all stocks - Starts at $100000 each day
+initial_wealth = 100000
+sim1 = foreach(i=1:5000, .combine='rbind') %do% {
+  total_wealth = initial_wealth
+  weights = c(0.25, 0.25, 0.25, 0.25)
+  holdings = weights * total_wealth
+  n_days = 20
+  wealthtracker = rep(0, n_days)
+  for(today in 1:n_days) {
+    return.today = resample(all_returns, 1, orig.ids=FALSE)
+    holdings = holdings + holdings*return.today
+    total_wealth = sum(holdings)
+    wealthtracker[today] = total_wealth
+  }
+  wealthtracker
+}
+
+# Understanding Wealth
+hist(sim1[,n_days], 25)
+# Average wealth 
+paste("Average Wealth",mean(sim1[,n_days]))
+paste("Standard Deviation of Wealth",sd(sim1[,n_days]))
+
+# Profit/loss
+hist(sim1[,n_days]- initial_wealth, breaks=30)
+paste("Average Profit/Loss",mean(sim1[,n_days] - initial_wealth))
+paste("Standard Deviation ofProfit/Loss",sd(sim1[,n_days] - initial_wealth))
+
+# 5% value at risk (VaR):
+paste("5% VaR",quantile(sim1[,n_days]- initial_wealth, prob=0.05))
+
+# 50% value at risk (VaR):
+paste("50% VaR",quantile(sim1[,n_days]- initial_wealth, prob=0.5))
+```
+
+##### Part B.
+
+##### LOW RISK PORTFOLIO:
+
+###### Description: It's a telecom portfolio consisting of Verizon, AT&T & T-Mobile which have been relatively more stable 
+
+###### With this portfolio and equal allocation of costs, based on the simulations, an average cost profit of $649.5 can be made with a standard deviation of $5652. The std dev is lower than the previous portfolio indicating that it's of lower risk but the profits are also lower in keeping with the phrase "High Risk High Return"
+
+###### The 5% value at risk for this stock is about -$8211 which means there is a possibility that 5% of the times you might lose over 8% of your original investment through this portfolio. However, the median profit/loss is around $507 which means that at least 50% of the times, you would end up with a profit.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+rm(list=ls())
+mystocks = c("VZ", "T", "TMUS")
+myprices = getSymbols(mystocks, from = "2017-01-01")
+par(mfrow=c(3,1))
+chartSeries(VZ, type="line", subset="last 6 years")
+chartSeries(T, type="line", subset="last 6 years")
+chartSeries(TMUS)
+
+# Adjusting stocks 
+for(ticker in mystocks) {
+  expr = paste0(ticker, "a = adjustOHLC(", ticker, ")")
+  eval(parse(text=expr))
+}
+
+# Combine all the returns in a matrix
+all_returns = cbind(	ClCl(VZa),
+                     ClCl(Ta),
+                     ClCl(TMUSa))
+all_returns = as.matrix(na.omit(all_returns))
+
+# Compute the returns from the closing prices
+pairs(all_returns)
+
+# Bootstrapping 5000 times with equal investments in all stocks - Starts at $100000 each day
+initial_wealth = 100000
+sim1 = foreach(i=1:5000, .combine='rbind') %do% {
+  total_wealth = initial_wealth
+  weights = c((1/3), (1/3), (1/3))
+  holdings = weights * total_wealth
+  n_days = 20
+  wealthtracker = rep(0, n_days)
+  for(today in 1:n_days) {
+    return.today = resample(all_returns, 1, orig.ids=FALSE)
+    holdings = holdings + holdings*return.today
+    total_wealth = sum(holdings)
+    wealthtracker[today] = total_wealth
+  }
+  wealthtracker
+}
+
+# Understanding Wealth
+hist(sim1[,n_days], 25)
+# Average wealth 
+mean(sim1[,n_days])
+sd(sim1[,n_days])
+
+# Profit/loss
+hist(sim1[,n_days]- initial_wealth, breaks=30)
+paste("Average Profit/Loss",mean(sim1[,n_days] - initial_wealth))
+paste("Standard Deviation ofProfit/Loss",sd(sim1[,n_days] - initial_wealth))
+
+# 5% value at risk (VaR):
+paste("5% VaR",quantile(sim1[,n_days]- initial_wealth, prob=0.05))
+
+# 50% value at risk (VaR):
+paste("50% VaR",quantile(sim1[,n_days]- initial_wealth, prob=0.5))
+```
+------------------------------------------------------------------------------------------------------------------------------------------
+
+## 6. Clustering and PCA:
+
+#### SOLUTION: 
+
+###### Approach: Use PCA to reduce dimensionality of the data set and come up with vectors that could used to predict the color of wine/quality.
+
+###### Let's make a numerical variable to code for wine color (1 - red, 0 - white). Next, let's look at the correlation plot. 
+
+##### Color of wine is the highly correlated with sulphur content and volatile acidity. Quality of wine is the correlated with alcohol content
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(gridExtra)
+rm(list=ls())
+wine = read.csv("wine.csv") 
+wine$color = ifelse(wine$color=='red',1,0)
+
+cor_mat = as.data.frame(cor(wine))
+cor_mat[13]
+cor_mat[12]
+```
+
+##### Predicting Color
+
+###### Let's work with PCA to reduce dimensionality of the data. From first glance, volatile.acidity and sulphur have opposing signs in PC1. Fair to say that a positive acidity & negative sulphur corresponds to red wine and vice-versa for white wine. 
+
+##### Also, PC1 seems adequately adept at predicting wine color on its own.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+wine_results = wine %>%
+  group_by(color) %>% 
+  summarize_all(mean) %>%
+  column_to_rownames(var="color")
+
+# Now look at PCA of the (average) survey responses.  
+# This is a common way to treat survey data
+PCAwine = prcomp(wine_results, scale=TRUE)
+round(PCAwine$rotation[,1:2],2) 
+
+# Let's make some plots of the shows themselves in 
+# PC space, i.e. the space of summary variables we've created
+wines = merge(wine_results, PCAwine$x, by="row.names")
+wines = rename(wines, Wine = Row.names)
+
+par(mfrow=c(1,2))
+b = ggplot(wines) + 
+  geom_col(aes(x=reorder(Wine, PC1), y=PC1)) + 
+  coord_flip()
+b
+```
+
+##### Predicting Quality
+
+###### Let's work with PCA to reduce dimensionality of the data. From first glance, it's hard to say how meaningful each vector is.
+
+```{r echo=FALSE}
+wine_results_quality = wine %>%
+  group_by(quality) %>% 
+  summarize_all(mean) %>%
+  column_to_rownames(var="quality")
+
+PCAwine_quality = prcomp(wine_results_quality, scale=TRUE)
+round(PCAwine_quality$rotation,2) 
+```
+
+###### Let's look at variance to understand better. Seems like PC1, PC2, PC3 are able to collectively explain 94% of the variance. 
+
+```{r echo=FALSE}
+plot(PCAwine_quality)
+summary(PCAwine_quality)
+
+wines_quality = merge(wine_results_quality, PCAwine_quality$x, by="row.names")
+wines_quality = rename(wines_quality, Quality = Row.names)
+```
+
+###### Let's run a regression model to see how influential these elements are. These are pretty good numbers
+
+```{r echo=FALSE}
+lm1 = lm(Quality ~ PC1 + PC2 + PC3, data=wines_quality)
+summary(lm1)
+
+```
+
+###### Let's build a tree to cluster these PCA dimensions now
+
+```{r echo=FALSE}
+dist_mat = dist(PCAwine_quality$x)
+tree_wine = hclust(dist_mat, method = 'average')
+plot(tree_wine)
+
+```
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+## 7. Market segmentation:
+
+#### SOLUTION:
+
+###### To understand the tweets better, let's define a ratio which gives us the average tweets per user for each category listed in the dataset. Based on the results below, it would seem like 'chatter' is the most common - given that it's a proxy for 'unknown', let's ignore that one. 
+
+###### The next biggest categories are photo sharing/ health nutrition and cooking 
+###### This could mean that: 
+###### 1. Some of these followers are food bloggers 
+###### 2. Some of them chase a  healthy lifestyle 
+###### 3. Some of them are professional chefs or like posting cooking content 
+###### 4. They could also be a sum of all 3 
+
+###### It's also interesting that some of these members are interested in politics & current events -
+###### 5. maybe they tend to support socially conscious brands 
+
+###### Also, there's a lot of sports fandom & college uni tweets too - 
+###### 6. Might be an indicator that university sports fans are also your followers 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+rm(list=ls())
+df = read.csv("social_marketing.csv")
+col_list = colnames(df)[c(2:37)]
+df_agg = as.data.frame(colSums(df[,2:37]))
+df_ratio = df_agg/length(df$X)
+colnames(df_ratio) = "Tweet_Ratio"
+head(arrange(df_ratio, desc(Tweet_Ratio)),20)
+```
+
+###### However, these are just directional hypotheses. Let's look at the correlation matrix to confirm some of our theories:
+
+###### 1. Health conscious users who are interested in a highly physical, outdoorsy lifestlyle 
+###### 2. People who blog about fashion & beauty also blog about cooking. This is interesting considering that these are some of the topics for which a lot of short, viral tik toks are available online. Consumers of one kind of topic are also the consumers of other 2 & hence tweet about it 
+###### 3. Some of these members are interested in politics & current events - maybe they tend to support socially conscious brands 
+###### 4. A new pattern that has emerged is a subset that tweets about parenting/religion/school/family and also food. These are typical topics associated with people in their 30s or 40s. Maybe they're looking for nutritious brands that might work well for their families 
+
+###### In summary, these four demographics derived based on the correlation matrix and intuition are good starting points to test out some of the marketing campaigns. But it is key to remember that correlation is not always causation. Hence, running A/B tests and then ramping up the experiments based on results would be a good idea. 
+
+```{r echo=FALSE}
+ggcorrplot::ggcorrplot(cor(df[,2:37]), hc.order = TRUE)
+```
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+## 8. The Reuters corpus
+
+#### SOLUTION: 
+
+#### QUESTION:
+
+###### One of Jane Macartney's articles begins by describing the beauty of Tibet and another one talks about political tensions in China. There are 50 different articles in her repository and while most of them feel seemingly unrelated at first glance,it's hard to gauge what she writes about due to the vivid swing in themes and topics. 
+
+##### The thriving questions are: 
+* What are her most frequently covered topics?
+* Given the diversity of the topics she covers, is there a way to broadly categorize her articles based on the themes in each of them?
+
+#### APPROACH:
+
+###### 1. A good way to understand the content of her articles would be through text mining. The process has the ability to broad stroke embedded sentiments
+###### 2. Given the quantity and verbosity of these articles, dimensionality reduction would also be necessary to condense all of that data into explainable, meaningful by concise vectors. 
+###### 3. Once condensed, it helps to cluster based on these key vectors to get a sense of related articles
+
+#### RESULTS:
+
+##### Text Mining: 
+  
+###### Digging through 50 of her articles, the most used words seems to be 'China', 'Beijing', 'Chinese', 'government', 'state' and so on. While directionally it might seem like she's talking about the political situation in China, to understand the situation deeper, let's look at some of the associations we see. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+## The tm library and related plugins comprise R's most popular text-mining stack.
+## See http://cran.r-project.org/web/packages/tm/vignettes/tm.pdf
+library(tm) 
+library(tidyverse)
+library(slam)
+library(proxy)
+
+rm(list=ls())
+## tm has many "reader" functions.  Each one has
+## arguments elem, language, id
+## (see ?readPlain, ?readPDF, ?readXML, etc)
+## This wraps another function around readPlain to read
+## plain text documents in English.
+# I've stored this function as a Github "gist" at:
+# https://gist.github.com/jgscott/28d9d1287a0c3c1477e2113f6758d5ff
+readerPlain = function(fname){readPlain(elem=list(content=readLines(fname)), id=fname, language='en') }
+
+## apply to all of Simon Cowell's articles
+## (probably not THE Simon Cowell)
+## "globbing" = expanding wild cards in filename paths
+file_list = Sys.glob('C50train/JaneMacartney/*.txt')
+jane = lapply(file_list, readerPlain) 
+
+# Clean up the file names
+mynames = file_list %>%
+  { strsplit(., '/', fixed=TRUE) } %>%
+  { lapply(., tail, n=2) } %>%
+  { lapply(., paste0, collapse = '') } %>%
+  unlist
+
+# Rename the articles
+names(jane) = mynames
+
+## once you have documents in a vector, you 
+## create a text mining 'corpus' with: 
+documents_raw = Corpus(VectorSource(jane))
+
+## Some pre-processing/tokenization steps.
+## tm_map just maps some function to every document in the corpus
+my_documents = documents_raw
+my_documents = tm_map(my_documents, content_transformer(tolower)) # make everything lowercase
+my_documents = tm_map(my_documents, content_transformer(removeNumbers)) # remove numbers
+my_documents = tm_map(my_documents, content_transformer(removePunctuation)) # remove punctuation
+my_documents = tm_map(my_documents, content_transformer(stripWhitespace)) ## remove excess white-space
+
+## Remove stopwords.  Always be careful with this!
+my_documents = tm_map(my_documents, content_transformer(removeWords), stopwords("en"))
+
+## create a doc-term-matrix
+DTM_jane = DocumentTermMatrix(my_documents)
+DTM_jane # some basic summary statistics
+
+## ...find words with greater than a min count...
+findFreqTerms(DTM_jane, 30)
+```
+
+
+###### China: Looking at China's closest associations, words such as 'membership', 'demands', 'disadvantages', 'neighbours', 'liberalisations' etc. seem to emerge. Maybe she is talking about the political situation in China and it's relationship with its neighbours.
+
+```{r echo=FALSE, paged.print=TRUE}
+findAssocs(DTM_jane, "china", .5) 
+```
+
+###### Tibet: When you look at Tibet's closest associations, it's with unrest, autonomy, uprising, antichinese etc. Feels like she's talking about Tibetian relations with China
+
+```{r echo=FALSE, paged.print=TRUE}
+findAssocs(DTM_jane, "tibet", .5) 
+```
+
+##### Dimensionality Reduction/PCA: 
+  
+###### Initially the data was 94% sparse & removal of sparse terms, there's still a 83% sparsity in the data. We clearly don't need all these dimensions. PCA might be able to help with this further. Using even about 20 compents is able to capture 65% of the variance in the data. Even just looking at 2 dimensions, you can see patterns emerge
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+## Drop those terms that only occur in one or two documents
+## This is a common step: the noise of the "long tail" (rare terms)
+##	can be huge, and there is nothing to learn if a term occurred once.
+## Below removes those terms that have count 0 in >95% of docs.  
+## Probably a bit extreme in most cases... but here only 50 docs!
+DTM_jane = removeSparseTerms(DTM_jane, 0.95)
+DTM_jane # now ~ 1000 terms (versus ~3000 before)
+
+# construct TF IDF weights
+tfidf_jane = weightTfIdf(DTM_jane)
+X = as.matrix(tfidf_jane)
+summary(colSums(X))
+scrub_cols = which(colSums(X) == 0)
+X = X[,-scrub_cols]
+
+pca_jane = prcomp(X, rank=20, scale=TRUE)
+plot(pca_jane) 
+summary(pca_jane)
+
+## Look at the first two PCs..
+# We've now turned each document into a single pair of numbers -- massive dimensionality reduction
+pca_jane$x[,1:2]
+
+plot(pca_jane$x[,1:2], xlab="PCA 1 direction", ylab="PCA 2 direction", bty="n",
+     type='n')
+text(pca_jane$x[,1:2], labels = 1:length(jane), cex=0.7)
+```
+##### Clustering: 
+
+###### Once we have condensed data, we could cluster the articles - maybe build a dendrogram to show which of there are related 
+
+```{r echo=FALSE}
+dist_mat = dist(pca_jane$x)
+tree_jane = hclust(dist_mat, method = 'average')
+plot(tree_jane)
+```
+
+##### Conclusions: 
+###### 1. To answer question 1, she generally covers topics relating to the political unrest in China and Tibet and how they're related to each other. She also talks about the various people involved in these situations (eg: Wang Dan)
+###### 2. To answer question 2, building a dendrogram helps us directionally understand which of these articles are related
+  
+##### But how do we consume this information? 
+###### Jane Macartney discusses Chinese politics. Analysing the text of other authors, you would recognise that maybe a few others also had takes on these topics. Building a collective pool of these authors and their takes might help understand the overall sentiment. Also, combining this information with association rule mining might help build good recommendation systems on book websites eg: Goodreads or even Google Scholar
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+## 9. Association rule mining
+
+#### SOLUTION: 
+
+##### PROCESSING THE DATA: 
+
+The data was present as a single column with each row corresponding to a basket. Processing steps include: 
+###### 1. Storing text as excel 
+###### 2. Splitting column by comma in R
+###### 3. Indexing the data to individual rows
+
+```{r echo=FALSE}
+library(tidyr)
+library(dplyr)
+library(readxl)
+library(ggplot2)
+library(arules)
+library(arulesViz)
+
+rm(list=ls())
+
+groceries <- read_excel("groceries.xlsx")
+mydf = as.data.frame(groceries)
+print("Before:")
+head(mydf)
+mydf <- cbind(index = rownames(mydf), mydf)
+rownames(mydf) <- 1:nrow(mydf)
+colnames(mydf) <- c("index","basket")
+
+## Processing the file
+df_2 = mydf %>% mutate(basket = strsplit(as.character(basket), ",")) %>% unnest(basket)
+print("After:")
+head(df_2,8)
+```
+
+##### ASSOCIATION RULE MINING: 
+
+Once the data was processed, the next step was to build association rules. Given that the max lift was 
+around 4.6, let's look at what it shows.
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+df_2$index = factor(df_2$index)
+groceries_df = split(x=df_2$basket, f=df_2$index)
+groceries_df = lapply(groceries_df, unique)
+groctrans = as(groceries_df, "transactions")
+grocrules = apriori(groctrans, parameter=list(support=.005, confidence=.1, maxlen=4))
+
+summary(grocrules)
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+k = subset(grocrules, subset=lift >= 4.6)
+inspect(k)
+```
+
+
+Seems like buying ham is a strong indication that you're also going to buy white bread, probably for a ham sandwich.
+Let's look at a few more with smaller lifts.
+
+##### All of these make total sense:
+###### 1. Buying veggies with herbs
+###### 2. Buying berries and cream - maybe for some fruit and cream dessert
+###### 3. Waffles and chocolate - Cheat day perhaps.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+p = head(subset(grocrules, subset=lift > 3),10)
+inspect(p)
+
+```
+The highest confidence is 0.7. Let's see what that corresponds to:
+
+```{r echo=FALSE}
+m = subset(grocrules, subset=confidence >= 0.7)
+inspect(m)
+```
+If you're buying TROPICAL fruits,ROOT veg & yogurt, you might just buy milk too. There's an above average lift associated with it too. These are staples in a lot of households (eg:Indian households)
+
+Let's make a Gephi image out of this first:
+
+```{r echo=FALSE}
+groceries_graph = associations2igraph(subset(grocrules, lift>1.8), associationsAsNodes = FALSE)
+igraph::write_graph(groceries_graph, file='groceries.graphml', format = "graphml")
+```
+
+Here are some interesting visuals from Gephi
+
+
+##### Whole Graph: Graph of all those with a lift greater than median lift(1.8)
+
+##### General Grocery Bag: These seem like the staples on every monthly grocery list for a household
+
+![](graph1.png)
+
+![](graph2.png)
+##### UHT Milk & Bottled Water - Generally, people get water off the tap in the US. However, some people who buy Ultra pasteurized UHT milk also seem to buy purified mineral water. These sound like consumers of clean food. 
